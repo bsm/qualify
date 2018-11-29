@@ -6,7 +6,7 @@ import (
 	"github.com/bsm/qualify"
 )
 
-func Example_Qualifier() {
+func ExampleQualifier() {
 	// We can use dictionary encoding to translate
 	// string values into numerics
 	dict := qualify.NewStrDict()

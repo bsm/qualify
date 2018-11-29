@@ -53,6 +53,6 @@ func (r *factReader) AppendFieldValues(x []int, f qualify.Field) []int {
   return x
 }
 
-func main() {{ "Example_Qualifier" | code }}
+func main() {{ "ExampleQualifier" | code }}
 ```
 
