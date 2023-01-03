@@ -57,10 +57,10 @@ func (q *Qualifier) Qualify(dst []int, fact Fact) []int {
 		}
 
 		// retrieve fact values
-		vv = fact.AppendFieldValues(vv[:0], field)
+		vv.S = fact.AppendFieldValues(vv.S[:0], field)
 
 		// merge all explicit oneOf outcomes
-		for _, val := range vv {
+		for _, val := range vv.S {
 			fv := fieldValue{Field: field, Value: val}
 
 			if set, ok := q.oneOf[fv]; ok {
@@ -78,7 +78,7 @@ func (q *Qualifier) Qualify(dst []int, fact Fact) []int {
 		}
 
 		// now, exclude all explicit noneOf outcomes
-		for _, val := range vv {
+		for _, val := range vv.S {
 			fv := fieldValue{Field: field, Value: val}
 
 			if set, ok := q.noneOf[fv]; ok {
@@ -93,17 +93,19 @@ func (q *Qualifier) Qualify(dst []int, fact Fact) []int {
 	}
 
 	// extract candidate positions (from pool)
-	poss := oc.AppendTo(q.recycleSlice())
+	poss := q.recycleSlice()
 	defer q.islPool.Put(poss)
 
+	poss.S = oc.AppendTo(poss.S)
+
 	// check each candidate against oneOfX restrictions
-	for _, pos := range poss {
+	for _, pos := range poss.S {
 		outcome := q.outcomes[pos]
 
 		skip := false
 		for field, multi := range q.oneOfX[outcome] {
-			vv = fact.AppendFieldValues(vv[:0], field)
-			if !multi.Match(fc, vv...) {
+			vv.S = fact.AppendFieldValues(vv.S[:0], field)
+			if !multi.Match(fc, vv.S...) {
 				skip = true
 				break
 			}
@@ -120,14 +122,21 @@ func (q *Qualifier) Qualify(dst []int, fact Fact) []int {
 func (q *Qualifier) recycleSet() *intsets.Dense {
 	if v := q.setPool.Get(); v != nil {
 		s := v.(*intsets.Dense)
+		s.Clear()
 		return s
 	}
 	return new(intsets.Dense)
 }
 
-func (q *Qualifier) recycleSlice() []int {
+func (q *Qualifier) recycleSlice() *intSlice {
 	if v := q.islPool.Get(); v != nil {
-		return v.([]int)[:0]
+		s := v.(*intSlice)
+		s.S = s.S[:0]
+		return s
 	}
-	return nil
+	return new(intSlice)
+}
+
+type intSlice struct {
+	S []int
 }

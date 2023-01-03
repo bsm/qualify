@@ -1,6 +1,8 @@
 module github.com/bsm/qualify
 
+go 1.19
+
 require (
-	github.com/onsi/ginkgo v1.7.0
-	github.com/onsi/gomega v1.4.3
+	github.com/bsm/ginkgo/v2 v2.5.0
+	github.com/bsm/gomega v1.20.0
 )
